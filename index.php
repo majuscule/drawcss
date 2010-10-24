@@ -23,6 +23,8 @@
 		var x_coord, y_coord = 'NULL';
 
 		var isDrawing = false;
+		var numberOfDivs = 0;
+		var tool = 'draw';
 
 		function newDiv(div_start_x, div_start_y, div_width, div_height){
 			this.x_start = div_start_x;
@@ -45,22 +47,30 @@
 		}
 
 		var drawnDivs = new Array();
-		var selectionBox = 'NULL';
 
 		$('#sketch').mouseup(function(e){
-		   	isDrawing = false;
-			pageX = e.pageX;
-			pageY = e.pageY;
-			x_coord = e.pageX - x_offset;
-			y_coord = e.pageY - y_offset;
-			x_length = x_coord - x_start;
-			y_height = y_coord - y_start;
-			context.strokeRect(x_start, y_start, x_length, y_height);
-			var div = new newDiv(x_start, y_start, x_length, y_height);
-			drawnDivs.push(div);
-			selectionBox = 'NULL';
-			console.log(drawnDivs);
-			update();
+			if(isDrawing){
+				isDrawing = false;
+				numberOfDivs++;
+				pageX = e.pageX;
+				pageY = e.pageY;
+				x_coord = e.pageX - x_offset;
+				y_coord = e.pageY - y_offset;
+				x_length = x_coord - x_start;
+				y_height = y_coord - y_start;
+				if(tool=='draw'){
+					context.strokeRect(x_start, y_start, x_length, y_height);
+					context.setBaseline = "top";
+					context.fillText("DIV"+numberOfDivs, x_start, y_start);
+					var div = new newDiv(x_start, y_start, x_length, y_height);
+					drawnDivs.push(div);
+					console.log(drawnDivs);
+				}
+				if(tool=='delete'){
+					if(1) return;
+				}
+				update();
+			}
 		});
 
 		$('#sketch').mousedown(function(e){
@@ -73,6 +83,7 @@
 
 		$('#sketch').mouseout(function(e){
 		   isDrawing = false;
+		   sketch_context.clearRect(0,0, sketch.width, sketch.height);
 		});
 		$('#sketch').mousemove(function(e){
 			pageX = e.pageX;
@@ -82,20 +93,55 @@
 			x_length = x_coord - x_start;
 			y_height = y_coord - y_start;
 			if(isDrawing) {
-				if (selectionBox != 'NULL')
-				sketch_context.clearRect(0,0, sketch.width, sketch.height);
-				sketch_context.strokeRect(x_start, y_start, x_length, y_height);
-				selectionBox = new newDiv(x_start, y_start, x_length, y_height);
+				if(tool=="draw"){
+					sketch_context.clearRect(0,0, sketch.width, sketch.height);
+					sketch_context.strokeRect(x_start, y_start, x_length, y_height);
+				}
 			}
 
+		});
+
+
+		$('#draw').mousedown(function(e){
+			tool = 'draw';
+		});
+
+		$('#move').mousedown(function(e){
+			tool = 'move';
+		});
+
+		$('#adjust').mousedown(function(e){
+			tool = 'adjust';
+		});
+
+		$('#delete').mousedown(function(e){
+			tool = 'delete';
+		});
+
+		$('#clear').mousedown(function(e){
+			context.clearRect(0,0, sketch.width, sketch.height);
+			numberOfDivs = 0;
 		});
 	});
     </script>
     <style type="text/css">
-      canvas { border: 1px solid black; position: absolute; top: 1px; left: 1px; }
+	canvas { position: absolute; top: 1px; left: 1px; }
+	#controls { float:right; width:150px; }
+	#controls li { cursor: pointer; padding-bottom:15px; font-weight: bold; list-style-type: none; }
     </style>
   </head>
   <body>
     <div id="container"><canvas id="drawing"></canvas></div>
+    <div id="controls">
+	<ul>
+	<li id="draw">draw</li>
+	<li id="move">move</li>
+	<li id="adjust">adjust</li>
+	<li id="delete">delete</li>
+	<li id="clear">clear</li>
+	<br><br><br>
+	<li id="viewmarkup">view markup</li>
+	</ul>
+    </div>
   </body>
 </html>
