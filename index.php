@@ -6,6 +6,7 @@
   <script type="text/javascript" src=
   "includes/jquery-components.js">
 </script>
+<!--[if IE]> <script type="text/javascript" src="includex/excanvas.js"> <![endif]-->
     <script type="text/javascript">
 	jQuery(document).ready(function(){
 
