@@ -42,12 +42,21 @@
 		container.appendChild(sketch);
 		var sketch_context = sketch.getContext('2d');
 
+		var drawnDivs = new Array();
+
 		function update(){
 			context.drawImage(sketch, 0, 0);
 			sketch_context.clearRect(0,0,canvas.width,canvas.height);
 		}
 
-		var drawnDivs = new Array();
+		function print_html(){
+			$('#markup').innerHTML = "<html><br>";
+			$('#markup').innerHTML = "<head><br>";
+			
+			for(i=0;i<=drawnDivs.length;i++){ // off by one?
+				//console.log(drawnDivs[i]);
+			}
+		}
 
 		$('#sketch').mouseup(function(e){
 			if(isDrawing){
@@ -59,17 +68,19 @@
 				y_coord = e.pageY - y_offset;
 				x_length = x_coord - x_start;
 				y_height = y_coord - y_start;
-				if(tool=='draw'){
+				if(tool=='draw' && (Math.abs(x_length) > 10 || Math.abs(y_height) > 10)){
 					context.strokeRect(x_start, y_start, x_length, y_height);
 					context.setBaseline = "top";
 					context.fillText("DIV"+numberOfDivs, x_start, y_start);
 					var div = new newDiv(x_start, y_start, x_length, y_height);
 					drawnDivs.push(div);
-					console.log(drawnDivs);
+					//console.log(drawnDivs);
 				}
 				if(tool=='delete'){
-					if(1) return;
+					if(1) return; //success!
 				}
+				print_html();
+				sketch_context.clearRect(0,0,canvas.width,canvas.height);
 				update();
 			}
 		});
@@ -98,6 +109,11 @@
 					sketch_context.clearRect(0,0, sketch.width, sketch.height);
 					sketch_context.strokeRect(x_start, y_start, x_length, y_height);
 				}
+				if(tool=="move"){
+					if(x_coord<=drawnDivs[0].x_start && y_coord<=drawnDivs[0].y_start){
+						console.log('you\'re in it!');
+					}
+				}
 			}
 
 		});
@@ -122,6 +138,23 @@
 		$('#clear').mousedown(function(e){
 			context.clearRect(0,0, sketch.width, sketch.height);
 			numberOfDivs = 0;
+			drawnDivs.length = 0;
+		});
+
+		$('#viewmarkup').mousedown(function(e){
+			$('canvas').toggle();
+			$('sketch').toggle();
+			$('#markup').toggle();
+		});
+
+		$('#controls li').click(function(e){
+			$(this).effect('highlight', 1000);
+		});
+
+		$('#controls li.tool').click(function(e){
+			$('#markup').hide();
+			$('#drawing').show();
+			$('#sketch').show();
 		});
 	});
     </script>
@@ -129,20 +162,20 @@
 	canvas { position: absolute; top: 1px; left: 1px; }
 	#controls { float:right; width:150px; }
 	#controls li { cursor: pointer; padding-bottom:15px; font-weight: bold; list-style-type: none; }
+	#markup { display:none; }
     </style>
   </head>
   <body>
     <div id="container"><canvas id="drawing"></canvas></div>
-    <div id="controls">
-	<ul>
-	<li id="draw">draw</li>
-	<li id="move">move</li>
-	<li id="adjust">adjust</li>
-	<li id="delete">delete</li>
+    <ul id="controls">
+	<li id="draw" class="tool">draw</li>
+	<li id="move" class="tool">move</li>
+	<li id="adjust" class="tool">adjust</li>
+	<li id="delete" class="tool">delete</li>
 	<li id="clear">clear</li>
 	<br><br><br>
 	<li id="viewmarkup">view markup</li>
-	</ul>
-    </div>
+    </ul>
+    <div id="markup">test</div>
   </body>
 </html>
